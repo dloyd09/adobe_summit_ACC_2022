@@ -1,0 +1,61 @@
+extends layout
+
+block header
+    
+block content
+  .inner
+    h4 Survey 
+    form(action='/survey' method="POST" class="card")
+      input(type='hidden' name='eventType' value='ecommerceSurvey')
+      input(type='hidden' name='eventTitle' value='productSubscriptionSurvey_01')
+      input(type='hidden' name='brand' value='Best_Co')
+      input(type='hidden' name='resourcePath' value='/survey')     
+
+      #question_1 What was your subsctiption experience?
+      input(type='hidden' name='question_1' value='What was your subsctiption experience?')
+      input#answer_1(type='radio' name='answer_1' value='Great')
+      label(for='answer_1')  Great
+      input#answer_1(type='radio' name='answer_1' value='Okay')
+      label(for='answer_1')  Okay
+      input#answer_1(type='radio' name='answer_1' value='Poor')
+      label(for='answer_1')  Poor
+      br
+      br
+      #question_2 How would you rate our product?
+      input(type='hidden' name='question_2' value='How would you rate our product?')
+      input#answer_2(type='radio' name='answer_2' value='Great')
+      label(for='answer_2')  Great
+      input#answer_2(type='radio' name='answer_2' value='Okay')
+      label(for='answer_2')  Okay
+      input#answer_2(type='radio' name='answer_2' value='Poor')
+      label(for='answer_2')  Poor
+      br
+      br
+      label(for="email") Email
+      input(type="email" name="email") 
+      br
+      br
+
+      input(type="submit" value="Submit" class="button")
+
+
+      //-const formObject = {
+        "consumer": {
+            "accountNo": "007",
+            "email": document.forms.simpleForm.elements.email.value
+        },
+        "event": {
+            "type": "ecommerce",
+            "title": "signUpSurvey_01",
+            "brand": "ABC_Brand",
+            "resourcePath": window.location.href,
+            "responseDetails": {
+                "selection": {
+                    "question_1": document.getElementById("question_1").innerHTML,
+                    "answer_1": document.forms.simpleForm.elements.answer_1.value,
+                    "question_2": document.getElementById("question_2").innerHTML,
+                    "answer_2": document.forms.simpleForm.elements.answer_2.value,
+                }
+            }
+        }
+        

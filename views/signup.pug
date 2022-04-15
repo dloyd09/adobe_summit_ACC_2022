@@ -1,0 +1,17 @@
+extends layout
+
+include mixins/_form
+
+block header
+    
+block content
+  .inner
+    h2 Sign Up Page
+    form.form(action="/signup" method="POST")
+      label(for="name") Name
+      input(type="text" name="name")
+      label(for="email") Email
+      input(type="email" name="email")
+
+      input(type="hidden" name="eventType" value="signup_email_template_01")
+      input.button(type="submit" value="Sign Up →")
