@@ -1,0 +1,60 @@
+﻿<?xml version='1.0'?>
+<package author="Whitney Bruce (brucew)" buildDate="2022-01-03 14:02:48.610Z" buildNumber="9032"
+         buildVersion="6.7">
+  <entities schema="xtk:jssp">
+    <jssp entitySchema="xtk:jssp" img="xtk:javascript.png" label="Suvery Events"
+          name="surveyevents.jssp" namespace="rai">
+      <data>&lt;%
+//this JSSP allow events to fire from survey's.
+//it will need the email address of the recipient 
+
+// disable cache
+response.addHeader("Access-Control-Allow-Origin", "*");
+response.addHeader("Access-Control-Allow-Methods", "OPTIONS");
+response.addHeader("Pragma", "no-cache");
+response.addHeader("Cache-Control", "no-cache");
+response.addHeader("Expires", new Date().toGMTString());
+response.setContentType('application/json');
+logonEscalation('webapp');
+
+var myObj = request.getBodyAsString();
+var parseObj = JSON.parse(myObj);
+
+var checkEmail = parseObj.consumer.email.length; //write some input validation
+var checkAccount = parseObj.consumer.accountNo.length; //write some input validation
+var checkBrand = parseObj.event.brand.length; //write some input validation
+
+var emailUpper = parseObj.consumer.email.toUpperCase(); 
+var brandUpper = parseObj.event.brand.toUpperCase();
+var typeUpper = parseObj.event.type.toUpperCase(); 
+
+if (checkEmail == 0 || checkAccount == 0 || checkBrand == 0)
+    {
+       var result = {
+                  status: 'Failure',
+                  reason: 'Check Data',
+                  brandLength: checkBrand,
+                  consumerEmailLength: parseObj.consumer.email.length,
+                  consumerAcctLength: parseObj.consumer.accountNo.length, 
+                  eventTypeLength: parseObj.event.type.length
+                 };
+              document.write(JSON.stringify(result));
+  }
+  
+  else {
+               var result = {
+                 status: 'Success',
+                 reason: 'Data written to table',
+                 brand: parseObj.event.brand,
+                 consumer: parseObj.consumer.email,
+                 consumerAcct: parseObj.consumer.accountNo, 
+                 eventType: parseObj.event.type
+                 };
+                 xtk.session.Write(&lt;surveyEvents xtkschema="rai:surveyEvents" operation="insert" account={parseObj.consumer.accountNo} brand={brandUpper} eventEmailAddress={emailUpper} eventType={typeUpper} eventPayload={myObj} /&gt;);           
+               document.write(JSON.stringify(result));
+  
+  }
+%&gt;</data>
+    </jssp>
+  </entities>
+</package>

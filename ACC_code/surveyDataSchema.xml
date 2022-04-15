@@ -1,0 +1,24 @@
+﻿<?xml version='1.0'?>
+<package author="Whitney Bruce (brucew)" buildDate="2022-01-03 13:55:22.704Z" buildNumber="9032"
+         buildVersion="6.7">
+  <entities schema="xtk:srcSchema">
+    <srcSchema desc="HTML forms that submit form data in JSON " entitySchema="xtk:srcSchema"
+               label="Survey Events" name="surveyEvents" namespace="rai" xtkschema="xtk:srcSchema">
+      <element autopk="true" desc="HTML forms that submit form data in JSON " label="Survey Form"
+               name="surveyEvents">
+        <attribute default="GetDate()" label="Event Created Date" name="eventDate"
+                   type="datetime"/>
+        <attribute label="Event Email Address" name="eventEmailAddress" type="string"/>
+        <attribute label="Event Type" name="eventType" type="string"/>
+        <attribute label="Event Payload" name="eventPayload" type="memo"/>
+        <attribute label="Event Account #" name="account" type="string"/>
+        <attribute label="Event Brand" name="brand" type="string"/>
+        <element label="Recipient" name="recipient" revCardinality="single" revIntegrity="neutral"
+                 target="nms:recipient" type="link">
+          <join xpath-dst="@email" xpath-src="@eventEmailAddress"/>
+        </element>
+        <element aggregate="xtk:common:auditTrail" name="auditTrail"/>
+      </element>
+    </srcSchema>
+  </entities>
+</package>

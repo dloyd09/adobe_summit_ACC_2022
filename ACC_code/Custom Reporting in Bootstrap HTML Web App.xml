@@ -1,0 +1,178 @@
+﻿<?xml version='1.0'?>
+<package author="Hote.User1854 (Hote.User1854)" buildDate="2022-01-09 02:22:12.772Z"
+         buildNumber="9032" buildVersion="6.7">
+  <entities schema="nms:webApp">
+    <webApp appState="5" defaultLanguage="en" designLanguage="en" hasHtmlPage="1"
+            internalName="rdcAPP41" label="dhl survey report" modelName="newLandingPage"
+            nature="landingPage" schema="nms:recipient">
+      <properties renderingEngine="1"/>
+      <errorPage>
+        <endPage>
+          <source>&lt;table style="color: red;"&gt;
+&lt;tr&gt;
+&lt;td style="vertical-align: middle; padding-left: 0.5em;"&gt;&lt;img src="/xtk/img/error.png"/&gt;&lt;/td&gt;
+&lt;td style="vertical-align: middle; padding: 1em;"&gt;
+&lt;p&gt;&lt;%= $(line1) %&gt;&lt;/p&gt;
+&lt;p&gt;&lt;%= $(line2) %&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;</source>
+          <strings>
+            <string id="line2" value="If this problem persists, please contact your Adobe Campaign administrator."/>
+            <string id="line1" value="An error occurred."/>
+          </strings>
+        </endPage>
+      </errorPage>
+      <activities>
+        <script label="Script" name="script" x="108" y="50">
+          <transitions>
+            <next name="next" target="htmlPage"/>
+          </transitions>
+          <code>var res = 
+  &lt;queryDef schema="dhl:surveyEvents" operation="select" &gt;
+    &lt;select&gt;
+        &lt;node expr="@eventPayload"/&gt;
+        &lt;node expr="@eventEmailAddress"/&gt;
+        &lt;node expr="@account"/&gt; 
+        &lt;node expr="@eventType"/&gt; 
+        &lt;node expr="@eventDate"/&gt;       
+    &lt;/select&gt;
+    &lt;where&gt;
+         &lt;condition expr={"[@eventPayload] IS NOT NULL" }/&gt;
+    &lt;/where&gt;
+    &lt;orderBy&gt;
+      &lt;node expr="@eventDate" sortDesc="true"/&gt;
+    &lt;/orderBy&gt;
+  &lt;/queryDef&gt;
+ctx.surveyEvents = xtk.queryDef.create(res).ExecuteQuery();
+
+
+/*
+for each (var msg in res){  
+  var parseObj = JSON.parse( msg.@eventPayload );
+  var ansOne = parseObj.event.responseDetails.selection.answer_1;
+  var ansTwo = parseObj.event.responseDetails.selection.answer_1;
+  logInfo(msg.@eventEmailAddress + ' - ' + ansOne + ' - ' + ansTwo)
+  }
+  */
+ //&lt;node expr="[service/@name]" alias="@serviceName"/&gt;
+ //&lt;node expr="[service/@label]" alias="@serviceLabel"/&gt;</code>
+        </script>
+        <htmlPage label="Page" name="htmlPage" x="252" y="48">
+          <transitions>
+            <next label="Next" name="next" target="end"/>
+          </transitions>
+          <content>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+   &lt;head&gt;
+      &lt;meta charset="utf-8"&gt;
+      &lt;meta http-equiv="X-UA-Compatible" content="IE=edge"&gt;
+      &lt;meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"&gt;
+      &lt;!-- Title --&gt;
+      &lt;title&gt;Survey Reveiw Report&lt;/title&gt;
+      &lt;!-- favicon --&gt;
+      &lt;!--link href="&lt;%= getOption('RESOURCES_URL') %&gt;favicon.ico" rel="icon"--&gt;&lt;!-- see next chapter for 'RESOURCES_URL' --&gt;
+      &lt;!--link href="&lt;%= getOption('RESOURCES_URL') %&gt;favicon.ico" rel="shortcut icon"/--&gt; 
+      &lt;!--link href="&lt;%= getOption('RESOURCES_URL') %&gt;favicon.png" rel="shortcut icon" type="image/png"/--&gt;
+      &lt;!-- Common CSS --&gt;
+      &lt;link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"&gt;
+      &lt;!--link rel="stylesheet" href="&lt;%= getOption('RESOURCES_URL') %&gt;base.css"--&gt;&lt;!-- see next chapter for 'RESOURCES_URL' --&gt;
+      &lt;!-- Custom CSS --&gt;
+      &lt;!--link rel="stylesheet" href="&lt;%= getOption('RESOURCES_URL') %&gt;my-layout.css"--&gt;
+      &lt;style type="text/css" media="all"&gt;
+         /* always keep an inline 
+      &lt;style&gt; for quick edit by designers */
+      &lt;/style&gt;
+   &lt;/head&gt;
+   &lt;body class="container" style=""&gt;
+&lt;!-- or .container-fluid, see https://getbootstrap.com/docs/3.3/css/#overview-container --&gt; &lt;!-- Common JS --&gt; &lt;br /&gt; &lt;br /&gt; &lt;br /&gt;
+&lt;h2&gt;A Simple Survey Report&lt;/h2&gt;
+&lt;table class="table table-hover"&gt;
+&lt;thead class="thead-dark"&gt;
+&lt;tr&gt;&lt;th scope="col"&gt;#&lt;/th&gt;&lt;th scope="col"&gt;Email Address&lt;/th&gt;&lt;th scope="col"&gt;Account #&lt;/th&gt;&lt;th scope="col"&gt;Survey Title&lt;/th&gt;&lt;th scope="col"&gt;Survey Date&lt;/th&gt;&lt;th scope="col"&gt;Question 1&lt;/th&gt;&lt;th scope="col"&gt;Answer 1&lt;/th&gt;&lt;th scope="col"&gt;Question 2&lt;/th&gt;&lt;th scope="col"&gt;Answer 2&lt;/th&gt;&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;&lt;% var number = 1; for each( var event in ctx.child('surveyEvents-collection').surveyEvents ) { var parseObj = JSON.parse( event.@eventPayload ); var ansOne = parseObj.event.responseDetails.selection.answer_1; %&gt;
+&lt;tr&gt;&lt;th scope="row"&gt;&lt;%= number++ %&gt;&lt;/th&gt;
+&lt;td&gt;&lt;%=event.@eventEmailAddress %&gt;&lt;/td&gt;
+&lt;td&gt;&lt;%=event.@account %&gt;&lt;/td&gt;
+&lt;td&gt;&lt;%= parseObj.event.title %&gt;&lt;/td&gt;
+&lt;td&gt;&lt;%= formatDate(event.@eventDate,"%4y/%2M/%2D") %&gt;&lt;/td&gt;
+&lt;td&gt;&lt;%= parseObj.event.responseDetails.selection.question_1 %&gt;&lt;/td&gt;
+&lt;td&gt;&lt;%= parseObj.event.responseDetails.selection.answer_1 %&gt;&lt;/td&gt;
+&lt;td&gt;&lt;%= parseObj.event.responseDetails.selection.question_2 %&gt;&lt;/td&gt;
+&lt;td&gt;&lt;%= parseObj.event.responseDetails.selection.answer_2 %&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;% } %&gt;&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;!--link href="&lt;%= getOption('RESOURCES_URL') %&gt;base.js" rel="stylesheet" /--&gt; &lt;!--link href="&lt;%= getOption('RESOURCES_URL') %&gt;google-analytics.js" rel="stylesheet" /--&gt; &lt;!-- Custom JS --&gt; &lt;!--link href="&lt;%= getOption('RESOURCES_URL') %&gt;my-page.js" rel="stylesheet" /--&gt;
+&lt;script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" type="text/javascript" crossorigin="anonymous" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"&gt;&lt;/script&gt;
+&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" type="text/javascript" crossorigin="anonymous" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"&gt;&lt;/script&gt;
+&lt;script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" type="text/javascript" crossorigin="anonymous" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</content>
+        </htmlPage>
+        <end label="End" name="end" x="396" y="51"/>
+      </activities>
+      <desc>To create a landing page from an existing HTML file.</desc>
+      <defaultDictionary _operation="none" name="xtkUserDictionary"/>
+      <folder _operation="none" name="nmsWebApp"/>
+      <rendering _operation="none" internalName="defaultFormRendering"/>
+      <deliveryMapping _operation="none" name="mapRecipient"/>
+      <strings context="webApp" locale="en" md5="b68e0ba11b0c9b86d8148c4b224b5c5b"
+               sourceId="closedFormLog" status="3" text="This form is currently closed.">
+        <folder _operation="none" name="xtkUserDictionary"/>
+        <webApp _operation="none" internalName="rdcAPP41"/>
+      </strings>
+      <strings context="webApp" locale="en" md5="c725ef3911103d145bbf2aba5c0be4c8"
+               sourceId="desc" status="3" text="To create a landing page from an existing HTML file.">
+        <folder _operation="none" name="xtkUserDictionary"/>
+        <webApp _operation="none" internalName="rdcAPP41"/>
+      </strings>
+      <strings context="webApp" locale="en" sourceId="end.endPage.@externalUrl" status="3">
+        <folder _operation="none" name="xtkUserDictionary"/>
+        <webApp _operation="none" internalName="rdcAPP41"/>
+      </strings>
+      <strings context="webApp" locale="en" md5="87557f11575c0ad78e4e28abedc13b6e"
+               sourceId="end.@label" status="3" text="End">
+        <folder _operation="none" name="xtkUserDictionary"/>
+        <webApp _operation="none" internalName="rdcAPP41"/>
+      </strings>
+      <strings context="webApp" locale="en" sourceId="errorPage.endPage.@externalUrl"
+               status="3">
+        <folder _operation="none" name="xtkUserDictionary"/>
+        <webApp _operation="none" internalName="rdcAPP41"/>
+      </strings>
+      <strings context="webApp" locale="en" md5="8711dbcb9166dca544544b027d7edb83"
+               sourceId="errorPage.endPage.strings.line1.@value" status="3" text="An error occurred.">
+        <folder _operation="none" name="xtkUserDictionary"/>
+        <webApp _operation="none" internalName="rdcAPP41"/>
+      </strings>
+      <strings context="webApp" locale="en" md5="312cc7a85512016d5b9266f1df4f417d"
+               sourceId="errorPage.endPage.strings.line2.@value" status="3" text="If this problem persists, please contact your Adobe Campaign administrator.">
+        <folder _operation="none" name="xtkUserDictionary"/>
+        <webApp _operation="none" internalName="rdcAPP41"/>
+      </strings>
+      <strings context="webApp" locale="en" md5="902b0d55fddef6f8d651fe1035b7d4bd"
+               sourceId="errorPage.@label" status="3" text="Error">
+        <folder _operation="none" name="xtkUserDictionary"/>
+        <webApp _operation="none" internalName="rdcAPP41"/>
+      </strings>
+      <strings context="webApp" locale="en" md5="193cfc9be3b995831c6af2fea6650e60"
+               sourceId="htmlPage.@label" status="3" text="Page">
+        <folder _operation="none" name="xtkUserDictionary"/>
+        <webApp _operation="none" internalName="rdcAPP41"/>
+      </strings>
+      <strings context="webApp" locale="en" md5="10ac3d04253ef7e1ddc73e6091c0cd55"
+               sourceId="htmlPage.transitions.next.@label" status="3" text="Next">
+        <folder _operation="none" name="xtkUserDictionary"/>
+        <webApp _operation="none" internalName="rdcAPP41"/>
+      </strings>
+      <strings context="webApp" locale="en" md5="2c1604fd239a1c00fe1bfcc8d7d06b5d"
+               sourceId="properties.@windowTitle" status="3" text="Enter the title of the window here">
+        <folder _operation="none" name="xtkUserDictionary"/>
+        <webApp _operation="none" internalName="rdcAPP41"/>
+      </strings>
+    </webApp>
+  </entities>
+</package>

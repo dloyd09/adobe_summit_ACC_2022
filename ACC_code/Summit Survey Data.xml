@@ -1,0 +1,14 @@
+﻿<?xml version='1.0'?>
+<package author="Hote.User1576 (Hote.User1576)" buildDate="2022-01-28 03:06:00.272Z"
+         buildNumber="9032" buildVersion="6.7">
+  <entities schema="xtk:workflow">
+    <workflow internalName="WKF5" label="Survey Data Workflow" modelName="newOpEmpty"
+              order="307817" scenario-cs="Notification of the workflow supervisor (notifySupervisor)"
+              schema="nms:recipient">
+      <scenario _operation="none" internalName="notifySupervisor"/>
+      <desc>Empty template to create a workflow in a marketing campaign</desc>
+      <folder _operation="none" name="nmsWkfOperation"/>
+      <operation _operation="none" internalName="OP1"/>
+    </workflow>
+  </entities>
+</package>

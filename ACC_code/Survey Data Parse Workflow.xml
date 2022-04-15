@@ -1,0 +1,129 @@
+﻿<?xml version='1.0'?>
+<package author="Hote.User1576 (Hote.User1576)" buildDate="2022-01-09 02:37:31.171Z"
+         buildNumber="9032" buildVersion="6.7">
+         
+  <entities schema="xtk:workflow">
+    <workflow form="xtk:workflow" internalName="WKF5" label="Survey Data Parse"
+              modelName="newOpEmpty" scenario-cs="Notification of the workflow supervisor (notifySupervisor)"
+              schema="nms:recipient" simulation="false">
+      <activities>
+        <end label="End" name="end" x="768" y="56"/>
+        <end label="End" name="end2" x="728" y="296"/>
+        <schedule label="Scheduler" name="schedule" x="24" y="84">
+          <transitions>
+            <transition name="transition" target="schedule"/>
+          </transitions>
+        </schedule>
+        <jumpin label="Jump (start point)" name="jumpin" x="704" y="120"/>
+        <jumpout label="Jump (end point)" name="jumpout" x="200" y="248">
+          <transitions>
+            <transition name="transition" target="dedup"/>
+          </transitions>
+        </jumpout>
+        <jstest label="Test" name="jstest" x="432" y="248">
+          <transitions>
+            <test label="True" name="transition1" target="alert">
+              <condition>vars.recCount&gt;0</condition>
+            </test>
+            <default name="default" target="end2"/>
+          </transitions>
+        </jstest>
+        <js label="JavaScript code" name="js2" x="360" y="80">
+          <transitions>
+            <done name="done" target="extract2"/>
+            <error name="error"/>
+          </transitions>
+          <script>var res = xtk.queryDef.create (
+  &lt;queryDef schema={vars.targetSchema} operation="select" &gt;
+    &lt;select&gt;
+        &lt;node expr="@eventPayload"/&gt;
+        &lt;node expr="@eventEmailAddress"/&gt;
+        &lt;node expr="@answer_1"/&gt;
+        &lt;node expr="@answer_2"/&gt;        
+    &lt;/select&gt;
+    &lt;where&gt;
+         &lt;condition expr={"[@eventPayload] IS NOT NULL" }/&gt;
+    &lt;/where&gt;
+  &lt;/queryDef&gt;
+).ExecuteQuery();
+
+
+for each (var msg in res){  
+  var parseObj = JSON.parse( msg.@eventPayload );
+  //map in the details from the JSON responses to use in a workflow
+  var ansOne = parseObj.event.responseDetails.selection.answer_1;
+  var ansTwo = parseObj.event.responseDetails.selection.answer_1;
+  
+  var upTempTable = &lt;query2 xtkschema={vars.targetSchema} _operation="update" _key="@eventEmailAddress" eventEmailAddress={msg.@eventEmailAddress} answer_1={ansOne} answer_2={ansTwo} /&gt;;
+   xtk.session.Write(upTempTable);    
+};</script>
+        </js>
+        <alert assigneeType="1" label="Alert" name="alert" operator-cs="Hote.User1576 (Hote.User1576)"
+               scenario-cs="Send an alert to workflow task assignees (alertAssignee)"
+               title="Poor Survey Responses" x="576" y="240">
+          <transitions>
+            <done name="done" target="end2"/>
+            <error name="error"/>
+          </transitions>
+          <message>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"&gt;
+&lt;!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" ""&gt;&lt;HTML&gt;&lt;HEAD&gt; 
+&lt;/HEAD&gt; 
+&lt;BODY&gt;
+&lt;P&gt;New survey&amp;nbsp;responses&amp;nbsp;that had&amp;nbsp;poor experiences&amp;nbsp;: &lt;%= vars.recCount %&gt; &lt;/P&gt;
+&lt;P&gt;See this link to review the recipient information: &lt;U&gt;&lt;FONT 
+color="#0066cc"&gt;https://campaign002.wwfo.adobevlab.com/webApp/rdcAPP41 
+&lt;/FONT&gt;&lt;/U&gt;&lt;/P&gt;&lt;/BODY&gt;&lt;/HTML&gt;</message>
+          <operator _operation="none" name="Hote.User1576" type="0"/>
+          <scenario _operation="none" internalName="alertAssignee"/>
+        </alert>
+        <query groupBy="false" keepAllExtraData="true" label="creation date on or after 7 days before and event Type equal to 'ecommerce'"
+               name="query2" schema="dhl:surveyEvents" x="200" y="80">
+          <transitions>
+            <result name="result" target="js2"/>
+          </transitions>
+          <select>
+            <node alias="@answer_1" expr="''" label="Answer 1"/>
+            <node alias="@answer_2" expr="''" label="Answer 2"/>
+            <node expr="@eventPayload" label="Event Payload"/>
+            <node expr="@eventEmailAddress" label="Event Email Address"/>
+          </select>
+          <where filterName="backGroundFilterFrm" filteringSchema="dhl:surveyEvents">
+            <condition boolOperator="AND" expr="@created &gt;= DaysAgo(7)" internalId="4263575709"/>
+            <condition expr="@eventType = 'ecommerce'" internalId="4264820895"/>
+          </where>
+          <humanCond>Query: creation date on or after 7 days before and event Type equal to 'ecommerce'</humanCond>
+        </query>
+        <extract label="Split" name="extract2" schema="nms:recipient" x="496" y="80">
+          <transitions>
+            <extractOutput enabled="true" label="Answer = Poor" name="extractOutput"
+                           recipientLink="" schema="temp:query2" schemaOverride="true"
+                           target="jumpin">
+              <filter enabled="true">
+                <where filterName="backGroundFilterFrm" id="3983867993">
+                  <condition boolOperator="OR" expr="@answer_1 = 'Poor'" internalId="3982688341"/>
+                  <condition expr="@answer_2 = 'Poor'" internalId="3983016023"/>
+                </where>
+                <humanCond>Query: answer 1 equal to 'Poor' or answer 2 equal to 'Poor'</humanCond>
+              </filter>
+            </extractOutput>
+            <done name="done"/>
+            <remainder enabled="1" label="Complement - Okay or better " name="remainder"
+                       target="end"/>
+          </transitions>
+        </extract>
+        <dedup label="Deduplication" name="dedup" schema="temp:query2" x="320" y="248">
+          <transitions>
+            <result name="result" target="jstest"/>
+            <remainder name="remainder"/>
+          </transitions>
+          <groupExpr expr="@account" id="3989897306" label="Event Account # (Survey Events)"/>
+          <display>Deduplicate on field(s) 'Event Account # (Survey Events)' with method 'Choose for me'</display>
+        </dedup>
+      </activities>
+      <variables/>
+      <scenario _operation="none" internalName="notifySupervisor"/>
+      <desc>Empty template to create a new workflow</desc>
+      <folder _operation="none" name="nmsWkfOperation"/>
+    </workflow>
+  </entities>
+</package>
